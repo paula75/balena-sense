@@ -9,6 +9,7 @@ import bme680
 import time
 from sense_hat import SenseHat
 from influxdb import InfluxDBClient
+from mock_sensor import MockSensor
 
 readfrom = 'unset'
 
@@ -29,7 +30,6 @@ if readfrom == 'unset':
     else:
         readfrom = 'bme680'
 
-
 # If no BME680, is there a Sense HAT?
 if readfrom == 'unset':
     try:
@@ -49,11 +49,23 @@ else:
         bme680_air_quality.start_bme680(sensor)
         get_readings = bme680_air_quality.get_readings
 
-# If this is still unset, no sensors were found; quit!
+# If this is still unset, no sensors were found; Use a dummy sensor
+if readfrom == 'unset':
+    try:
+        sensor = MockSensor()
+    except:
+        print 'MockSensor not found'
+    else:
+        readfrom = 'mock-sensor'
+        print 'Using Mock Sensor for readings'
+        import mock_sensor
+        get_readings = mock_sensor.get_readings
+
+# quit!
 if readfrom == 'unset':
     sys.exit()
 
-# Create the database client, connected to the influxdb container, and select/create the database
+# Create the database client, connected to the influxdb container, and select/create the databasepressure
 influx_client = InfluxDBClient('influxdb', 8086, database='balena-sense')
 influx_client.create_database('balena-sense')
 
