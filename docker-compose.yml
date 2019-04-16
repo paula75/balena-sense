@@ -3,13 +3,13 @@ volumes:
     sense-data:
 services:
   influxdb:
-    restart: always
     build: ./influxdb
+    restart: always
     volumes:
       - 'sense-data:/data'
   grafana:
-    restart: always
     build: ./grafana
+    restart: always
     ports:
       - "80:3000"
     volumes:
@@ -22,3 +22,8 @@ services:
     restart: always
     depends_on:
      - influxdb
+  wifi-connect:
+    build: ./wifi-connect
+    privileged: true
+    restart: always
+    network_mode: host
