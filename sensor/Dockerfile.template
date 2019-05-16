@@ -6,7 +6,7 @@ WORKDIR /tmp/RTIMU/Linux/python
 RUN python ./setup.py build
 RUN python ./setup.py install
 
-RUN pip install smbus bme680 influxdb sense-hat
+RUN pip install smbus pyserial bme680 influxdb sense-hat
 
 WORKDIR /usr/src/app
 

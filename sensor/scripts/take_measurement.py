@@ -6,6 +6,8 @@
 
 import sys
 import bme680
+import serial
+import serial_sensor
 import time
 from sense_hat import SenseHat
 from influxdb import InfluxDBClient
@@ -49,6 +51,15 @@ else:
         bme680_air_quality.start_bme680(sensor)
         get_readings = bme680_air_quality.get_readings
 
+if readfrom == 'unset':
+    try:
+        sensor = serialSensor()
+    except:
+        print 'Serial sensor not found'
+    else:
+        readfrom = 'serial-sensor'
+        print 'Using Serial data readings'
+        get_readings = serial_sensor.get_readings
 # If this is still unset, no sensors were found; Use a dummy sensor
 if readfrom == 'unset':
     try:
