@@ -15,45 +15,10 @@ from mock_sensor import MockSensor
 
 readfrom = 'unset'
 
-# First, check to see if there is a BME680 on the I2C bus
-try:
-    sensor = bme680.BME680(bme680.I2C_ADDR_PRIMARY)
-except IOError:
-    print 'BME680 not found on 0x76, trying 0x77'
-else:
-    readfrom = 'bme680'
-
-# If we didn't find it on 0x76, look on 0x77
 if readfrom == 'unset':
     try:
-        sensor = bme680.BME680(bme680.I2C_ADDR_SECONDARY)
-    except IOError:
-        print 'BME680 not found on 0x77'
-    else:
-        readfrom = 'bme680'
-
-# If no BME680, is there a Sense HAT?
-if readfrom == 'unset':
-    try:
-        sensor = SenseHat()
-    except:
-        print 'Sense HAT not found'
-    else:
-        readfrom = 'sense-hat'
-        print 'Using Sense HAT for readings (no gas measurements)'
-        # Import the sense hat methods
-        import sense_hat_air_quality
-        get_readings = sense_hat_air_quality.get_readings
-else:
-        print 'Using BME680 for readings'
-        # Import the bme680 methods and nitialise the bme680 burnin
-        import bme680_air_quality
-        bme680_air_quality.start_bme680(sensor)
-        get_readings = bme680_air_quality.get_readings
-
-if readfrom == 'unset':
-    try:
-        sensor = serialSensor()
+        print 'Try serial sensor'
+        sensor = serial_sensor.SerialSensor("/dev/ttyACM0", 115200)
     except:
         print 'Serial sensor not found'
     else:
@@ -84,4 +49,4 @@ influx_client.create_database('balena-sense')
 while True:
     measurements = get_readings(sensor)
     influx_client.write_points(measurements)
-    time.sleep(10)
+    time.sleep(1)
